@@ -50,7 +50,10 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         amount: 1,
       };
 
-      setCart([...cart, newCartProduct]);
+      const cartUpdated = [...cart, newCartProduct];
+
+      setCart(cartUpdated);
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cartUpdated));
     } catch (err) {
       toast.error(err.message);
     }
@@ -59,10 +62,13 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
   const removeProduct = (productId: number) => {
     try {
       if (!cart.some(product => product.id === productId)) {
-        throw new Error('This product is no longer in the cart.');
+        throw new Error("This product isn't in the cart.");
       }
 
-      setCart(cart.filter(item => item.id !== productId));
+      const cartUpdated = cart.filter(item => item.id !== productId);
+
+      setCart(cartUpdated);
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cartUpdated));
     } catch (err) {
       toast.error(err.message);
     }
@@ -79,7 +85,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
       const { data: productStock } = await api.get<Stock>(`stock/${productId}`);
 
-      if (productStock.amount < amount) {
+      if (amount > productStock.amount) {
         throw new Error('Maximum stock reached.');
       }
 
@@ -93,6 +99,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       });
 
       setCart(cartUpdated);
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cartUpdated));
     } catch (err) {
       toast.error(err.message);
     }
